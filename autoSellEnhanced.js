@@ -710,6 +710,22 @@
     }
 
     batchSellInProgress = true;
+    
+    // 点击排序按钮以刷新价格
+    try {
+      const sortBtn = document.querySelector('#script_sortByAsk_btn');
+      if (sortBtn) {
+        simulateRealClick(sortBtn);
+        console.log('已点击价格排序按钮，等待价格更新...');
+        // 等待1秒让价格更新
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } else {
+        console.warn('未找到价格排序按钮 #script_sortByAsk_btn');
+      }
+    } catch (e) {
+      console.error('点击排序按钮失败:', e);
+    }
+    
     const marks = ItemMarkStorage.get();
     
     // 过滤出在库存中实际存在的物品，并获取价格信息
@@ -1633,7 +1649,22 @@
   }
 
   // 更新单个物品价格
-  function updateSingleItemPrice(itemName) {
+  async function updateSingleItemPrice(itemName) {
+    // 点击排序按钮以刷新价格
+    try {
+      const sortBtn = document.querySelector('#script_sortByAsk_btn');
+      if (sortBtn) {
+        simulateRealClick(sortBtn);
+        console.log('已点击价格排序按钮，等待价格更新...');
+        // 等待1秒让价格更新
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } else {
+        console.warn('未找到价格排序按钮 #script_sortByAsk_btn');
+      }
+    } catch (e) {
+      console.error('点击排序按钮失败:', e);
+    }
+    
     const itemElement = findItemElementByName(itemName);
     if (itemElement) {
       const newPrice = getItemPrice(itemElement);
@@ -1650,7 +1681,22 @@
   }
 
   // 更新所有已执行物品价格
-  function updateAllExecutedItemPrices() {
+  async function updateAllExecutedItemPrices() {
+    // 点击排序按钮以刷新价格
+    try {
+      const sortBtn = document.querySelector('#script_sortByAsk_btn');
+      if (sortBtn) {
+        simulateRealClick(sortBtn);
+        console.log('已点击价格排序按钮，等待价格更新...');
+        // 等待1秒让价格更新
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } else {
+        console.warn('未找到价格排序按钮 #script_sortByAsk_btn');
+      }
+    } catch (e) {
+      console.error('点击排序按钮失败:', e);
+    }
+    
     const executedItems = ExecutedItemsStorage.get();
     let updatedCount = 0;
     
