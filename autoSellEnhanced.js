@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name            [银河奶牛]库存物品快速交易增强版(支持物品标记和分类管理)
-// @namespace       https://tampermonkey.net/
+// @namespace       https://github.com/moveyyh/milk-plugin
 // @version         1.0.0
 // @description     基于[银河奶牛]库存物品快速交易(支持右一左一快速操作)插件扩展。支持一键自动出售物品,当单击选择了物品,也就是展开了前往市场,然后按S键,就会自动卖右一,按A键就会自动挂左一。新增物品标记功能：支持卖一、卖0、买1三种标记类型，右键菜单操作，可拖拽管理窗口
 // @author          yyh
 // @license         MIT
 // @icon            https://www.milkywayidle.com/favicon.svg
 // @match           https://www.milkywayidle.com/game*
-// @downloadURL https://update.greasyfork.org/scripts/536865/%5B%E9%93%B6%E6%B2%B3%E5%A5%B6%E7%89%9B%5D%E5%BA%93%E5%AD%98%E7%89%A9%E5%93%81%E5%BF%AB%E9%80%9F%E4%BA%A4%E6%98%93%28%E6%94%AF%E6%8C%81%E5%8F%B3%E4%B8%80%E5%B7%A6%E4%B8%80%E5%BF%AB%E9%80%9F%E6%93%8D%E4%BD%9C%29.user.js
-// @updateURL https://update.greasyfork.org/scripts/536865/%5B%E9%93%B6%E6%B2%B3%E5%A5%B6%E7%89%9B%5D%E5%BA%93%E5%AD%98%E7%89%A9%E5%93%81%E5%BF%AB%E9%80%9F%E4%BA%A4%E6%98%93%28%E6%94%AF%E6%8C%81%E5%8F%B3%E4%B8%80%E5%B7%A6%E4%B8%80%E5%BF%AB%E9%80%9F%E6%93%8D%E4%BD%9C%29.meta.js
+// @downloadURL  https://raw.githubusercontent.com/moveyyh/milk-plugin/refs/heads/main/autoSellEnhanced.js
+// @updateURL    https://raw.githubusercontent.com/moveyyh/milk-plugin/refs/heads/main/autoSellEnhanced.js
 // ==/UserScript==
 
 (function () {
