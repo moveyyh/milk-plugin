@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name            [银河奶牛]库存物品快速交易增强版(支持物品标记和分类管理)
 // @namespace       https://github.com/moveyyh/milk-plugin
-// @version         1.0.0
+// @version         1.0.1
 // @description     基于[银河奶牛]库存物品快速交易(支持右一左一快速操作)插件扩展。支持一键自动出售物品,当单击选择了物品,也就是展开了前往市场,然后按S键,就会自动卖右一,按A键就会自动挂左一。新增物品标记功能：支持卖一、卖0、买1三种标记类型，右键菜单操作，可拖拽管理窗口
 // @author          yyh
 // @license         MIT
