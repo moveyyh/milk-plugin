@@ -2,7 +2,7 @@
 // @name            [银河奶牛]库存物品快速交易增强版(支持物品标记和分类管理)
 // @namespace       https://github.com/moveyyh/milk-plugin
 // @version         1.0.1
-// @description     基于[银河奶牛]库存物品快速交易(支持右一左一快速操作)插件扩展。支持一键自动出售物品,当单击选择了物品,也就是展开了前往市场,然后按S键,就会自动卖右一,按A键就会自动挂左一。新增物品标记功能：支持卖一、卖0、买1三种标记类型，右键菜单操作，可拖拽管理窗口
+// @description     基于[银河奶牛]库存物品快速交易(支持右一左一快速操作)插件扩展。支持一键自动出售物品,当左键点击选择了物品,弹出菜单后,按S键自动执行右一出售流程,按A键自动执行左一出售流程。新增物品标记功能：支持卖一、卖0、买1三种标记类型，右键菜单操作，可拖拽管理窗口。新流程：左键点击物品→选择出售方式→确认出售
 // @author          yyh
 // @license         MIT
 // @icon            https://www.milkywayidle.com/favicon.svg
@@ -518,6 +518,17 @@
       return null;
   }
 
+  // 新增：查找物品弹出菜单中的按钮
+  function findButtonInItemMenu(buttonText) {
+      // 查找物品操作菜单容器
+      const itemMenu = document.querySelector('.Item_actionMenu__2yUcG');
+      if (!itemMenu) {
+          return null;
+      }
+
+      return findButtonByText(buttonText, itemMenu);
+  }
+
   // 查找按钮函数 - 根据精确匹配的文本查找
   function findButtonByExactText(buttonText, container = document) {
       // 查找所有按钮元素
@@ -557,16 +568,27 @@
   }
 
   // 创建步骤对象 - 封装步骤逻辑
-  function createStep(name, containerSelector, buttonTextOrArray, exactMatch = false, successCallback = null) {
+  function createStep(name, containerSelector, buttonTextOrArray, exactMatch = false, successCallback = null, delay, finallyDelay) {
       return {
           name: name,
+          delay,
+          finallyDelay,
           fn: () => {
+              // 如果是物品菜单步骤，使用专门的查找函数
+              if (containerSelector === '.Item_actionMenu__2yUcG') {
+                  const btn = findButtonInItemMenu(buttonTextOrArray);
+                  if (btn) {
+                    return simulateRealClick(btn)
+                  }
+                  return false;
+              }
+
               // 使用querySelectorAll查找所有匹配的容器元素
               const containers = document.querySelectorAll(containerSelector);
               if (containers.length === 0) {
                   return false;
               }
-              
+
               // 遍历所有容器
               for (const container of containers) {
                   // 执行成功回调（如果有）
@@ -587,7 +609,7 @@
                       return simulateRealClick(btn);
                   }
               }
-              
+
               return false;
           }
       };
@@ -598,41 +620,34 @@
     switch (markType) {
       case MARK_TYPES.SELL_ONE:
         return [
-          // 步骤1: 前往市场
-          createStep('前往市场', '[class*="MuiTooltip-tooltip"]', '前往市场'),
-          // 步骤2: 点击新出售挂牌
-          createStep('新出售挂牌', '[class*="MarketplacePanel_orderBook"]', '新出售挂牌'),
-          // 步骤3: 点击全部或检查已有最多
-          createStep('点击全部', '[class*="MarketplacePanel_modalContent"]', ['全部', '最多']),
-          // 步骤4: 点击"+"按钮（左一）
-          createStep('点击加号', '[class*="MarketplacePanel_modalContent"]', '+'),
-          // 步骤5: 发布出售订单
-          createStep('发布出售订单', '[class*="MarketplacePanel_modalContent__"]', '发布出售')
+          // 步骤1: 点击全部
+          createStep('点击全部', '.Item_actionMenu__2yUcG', '全部'),
+          // 步骤2: 点击左一出售
+          createStep('点击左一出售', '.Item_actionMenu__2yUcG', '左一出售'),
+          // 步骤3: 确认左一卖出
+          createStep('确认左一卖出', '.Item_actionMenu__2yUcG', '确认左一卖出', false, null, 500, 600)
         ];
       case MARK_TYPES.SELL_ZERO:
         return [
-          // 步骤1: 前往市场
-          createStep('前往市场', '[class*="MuiTooltip-tooltip"]', '前往市场'),
-          // 步骤2: 点击新出售挂牌
-          createStep('新出售挂牌', '[class*="MarketplacePanel_orderBook"]', '新出售挂牌'),
-          // 步骤3: 点击全部或检查已有最多
-          createStep('点击全部', '[class*="MarketplacePanel_modalContent"]', ['全部', '最多']),
-          // 步骤4: 发布出售订单
-          createStep('发布出售订单', '[class*="MarketplacePanel_modalContent__"]', '发布出售')
+          // 步骤1: 点击全部
+          createStep('点击全部', '.Item_actionMenu__2yUcG', '全部'),
+          // 步骤2: 点击右一出售
+          createStep('点击右一出售', '.Item_actionMenu__2yUcG', '右一出售'),
+          // 步骤3: 确认右一卖出
+          createStep('确认右一卖出', '.Item_actionMenu__2yUcG', '确认右一卖出', false, null, 500, 600)
         ];
       case MARK_TYPES.BUY_ONE:
         return [
-          // 步骤1: 前往市场
-          createStep('前往市场', '[class*="MuiTooltip-tooltip"]', '前往市场'),
-          // 步骤2: 点击出售
-          createStep('点击出售', '[class*="MarketplacePanel_orderBook"]', '出售', true),
-          // 步骤3: 点击全部或检查已有最多
-          createStep('点击全部', '[class*="MarketplacePanel_modalContent"]', ['全部', '最多']),
-          // 步骤4: 发布出售订单
-          createStep('发布出售订单', '[class*="MarketplacePanel_modalContent__"]', '发布出售')
+          // 步骤1: 点击全部
+          createStep('点击全部', '.Item_actionMenu__2yUcG', '全部'),
+          // 步骤2: 点击右一出售
+          createStep('点击右一出售', '.Item_actionMenu__2yUcG', '右一出售'),
+          // 步骤3: 确认右一卖出
+          createStep('确认右一卖出', '.Item_actionMenu__2yUcG', '确认右一卖出', false, null, 500, 600)
         ];
       default:
         return [];
+        
     }
   }
 
@@ -1109,15 +1124,29 @@
       });
   }
 
+  async function sleepFunc(time) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve()
+      }, time)
+    })
+  }
+
   // 执行一系列步骤
   async function executeSteps(steps) {
       for (let i = 0; i < steps.length; i++) {
+        
           if (!isOperating) {
               showTemporaryMessage('操作已取消', 3000);
               break;
           }
 
           const step = steps[i];
+
+          if (step.delay) {
+            await sleepFunc(step.delay)
+          }
+
           const success = await tryExecuteStep(step.fn, step.name);
 
           if (!success) {
@@ -1128,37 +1157,29 @@
           }
 
           // 成功执行完一个步骤后等待一小段时间让UI更新
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, step.finallyDelay || 300));
       }
 
       return true;
   }
 
-  // 自动交易流程 - 直接出售
+  // 自动交易流程 - 直接出售（右一出售）
   async function autoSell() {
       isOperating = true;
 
       // 检查是否选择了物品
       if (!document.querySelector('[class*="Item_selected__"]')) {
-          // 将alert替换为showTemporaryMessage
           showTemporaryMessage('请先选择物品!', 3000);
           isOperating = false;
           return;
       }
 
-      // 定义交易步骤
+      // 定义交易步骤 - 新流程：点击物品→点击右一出售→确认右一卖出
       const steps = [
-          // 步骤1: 前往市场
-          createStep('前往市场', '[class*="MuiTooltip-tooltip"]', '前往市场'),
-
-          // 步骤2: 点击出售
-          createStep('点击出售', '[class*="MarketplacePanel_orderBook"]', '出售', true),
-
-          // 步骤3: 点击全部或检查已有最多
-          createStep('点击全部', '[class*="MarketplacePanel_modalContent"]', ['全部', '最多']),
-
-          // 步骤4: 发布出售订单
-          createStep('发布出售订单', '[class*="MarketplacePanel_modalContent__"]', '发布出售')
+          // 步骤1: 点击右一出售
+          createStep('点击右一出售', '.Item_actionMenu__2yUcG', '右一出售'),
+          // 步骤2: 确认右一卖出
+          createStep('确认右一卖出', '.Item_actionMenu__2yUcG', '确认右一卖出')
       ];
 
       // 执行步骤
@@ -1166,9 +1187,7 @@
 
       isOperating = false;
       if (success) {
-          console.log('交易完成!');
-          // 可以选择在这里也加一个完成提示
-          // showTemporaryMessage('直接出售完成!', 3000);
+          console.log('右一出售完成!');
       }
   }
 
@@ -1178,28 +1197,17 @@
 
       // 检查是否选择了物品
       if (!document.querySelector('[class*="Item_selected__"]')) {
-          // 替换alert，使用自定义函数显示3秒后自动消失的提示
-          showTemporaryMessage('请先选择物品!', 3000); // 显示提示信息，持续3秒
+          showTemporaryMessage('请先选择物品!', 3000);
           isOperating = false;
           return;
       }
 
-      // 定义交易步骤
+      // 定义交易步骤 - 新流程：点击物品→点击左一出售→确认左一卖出
       const steps = [
-          // 步骤1: 前往市场
-          createStep('前往市场', '[class*="MuiTooltip-tooltip"]', '前往市场'),
-
-          // 步骤2: 点击新出售挂牌
-          createStep('新出售挂牌', '[class*="MarketplacePanel_orderBook"]', '新出售挂牌'),
-
-          // 步骤3: 点击全部或检查已有最多
-          createStep('点击全部', '[class*="MarketplacePanel_modalContent"]', ['全部', '最多']),
-
-          // 步骤4: 点击"+"按钮（左一）
-          createStep('点击加号', '[class*="MarketplacePanel_modalContent"]', '+'),
-
-          // 步骤5: 发布出售订单
-          createStep('发布出售订单', '[class*="MarketplacePanel_modalContent__"]', '发布出售')
+          // 步骤1: 点击左一出售
+          createStep('点击左一出售', '.Item_actionMenu__2yUcG', '左一出售'),
+          // 步骤2: 确认左一卖出
+          createStep('确认左一卖出', '.Item_actionMenu__2yUcG', '确认左一卖出')
       ];
 
       // 执行步骤
@@ -1207,9 +1215,7 @@
 
       isOperating = false;
       if (success) {
-          console.log('挂左一完成!');
-          // 可以选择在这里也加一个完成提示
-          // showTemporaryMessage('挂左一完成!', 3000);
+          console.log('左一出售完成!');
       }
   }
 
@@ -1959,8 +1965,8 @@
 
   console.log('牛牛快速交易增强版脚本已加载！');
   console.log('快捷键:');
-  console.log('- S键: 直接出售');
-  console.log('- A键: 挂左一');
+  console.log('- S键: 右一出售（点击物品→点击右一出售→确认右一卖出）');
+  console.log('- A键: 左一出售（点击物品→点击左一出售→确认左一卖出）');
   console.log('- M键: 打开/关闭标记管理窗口');
   console.log('- B键: 批量出售标记物品');
   console.log('- 右键物品: 标记物品');
@@ -1972,9 +1978,19 @@
   console.log('- 导入标记: 从JSON文件导入标记数据');
   console.log('- 清空所有: 清除所有物品标记');
   console.log('');
+  console.log('标记说明:');
+  console.log('- 卖一（红色）: 使用左一出售流程');
+  console.log('- 卖0（橙色）: 使用右一出售流程');
+  console.log('- 买1（绿色）: 使用右一出售流程');
+  console.log('');
   console.log('已执行记录功能:');
   console.log('- 自动记录卖一和卖0类型的已执行物品');
   console.log('- 更新价格: 单个或批量更新已执行物品的价格');
   console.log('- 删除记录: 单个删除或清空所有已执行记录');
   console.log('- 优先级: 已执行的物品在批量出售时排在最后');
+  console.log('');
+  console.log('新流程说明:');
+  console.log('1. 左键点击物品，弹出操作菜单');
+  console.log('2. 点击"左一出售"或"右一出售"按钮');
+  console.log('3. 点击"确认左一卖出"或"确认右一卖出"完成交易');
 })();
